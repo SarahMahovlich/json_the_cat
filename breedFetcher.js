@@ -1,32 +1,26 @@
 const request = require('request');
-const args = process.argv.slice(2);
+ 
+const fetchBreedDescription = function(breedName, callback) {
 
-const breedFetcher = function(breed) {
-
-  request(`https://api.thecatapi.com/v1/breeds/search?q=${breed}`, (error, response, body) => {
+  request(`https://api.thecatapi.com/v1/breeds/search?q=${breedName}`, (error, response, body) => {
     
     if (error) {
-      console.log(`There was an error: ${error}`);
+      callback(error, null);
       return;
     } else if (response.statusCode < 200 || response.statusCode >= 300) {
-      console.log(`There was a non 200 statusCode: ${response.statusCode}`);
+      callback(null, `There was a non 200 statusCode: ${response.statusCode}`);
       return;
     }
-    
+
     const data = JSON.parse(body);
     if (data[0] === undefined) {
-      console.log(`breed: ${breed} not found`);
+      callback(error, null);
     } else {
-      console.log(data[0].description);
+      callback(null, data[0].description.trim());
+      return;
     }
 
   });
 };
 
-breedFetcher(args[0]);
-
-
-
-
- 
-  
+module.exports = { fetchBreedDescription };
